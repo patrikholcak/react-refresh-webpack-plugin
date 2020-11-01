@@ -19,7 +19,7 @@ const parseQuery = require('./parseQuery');
  */
 function getSocketUrlParts(resourceQuery) {
   const scriptSource = getCurrentScriptSource();
-  const urlParts = url.parse(scriptSource);
+  const urlParts = url.parse(scriptSource || '');
 
   /** @type {string | undefined} */
   let auth;
@@ -81,6 +81,15 @@ function getSocketUrlParts(resourceQuery) {
   hostname = parsedQuery.sockHost || hostname;
   pathname = parsedQuery.sockPath || pathname;
   port = parsedQuery.sockPort || port;
+
+  if (!hostname || !pathname || !port) {
+    throw new Error(
+      '[React Refresh] Failed to get an URL for the socket connection. ' +
+        'This might occur when the execution script doesn’t have `src` attribute set. ' +
+        'Either specify it or use overlay options ' +
+        'https://github.com/pmmmwh/react-refresh-webpack-plugin/blob/main/docs/API.md#overlay'
+    );
+  }
 
   return {
     auth: auth,
